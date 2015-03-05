@@ -11,21 +11,15 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 namespace ZombieGame {
+    class BaseSprite {
+        // Texture
+        protected Texture2D texture; // Sprite texture to draw
+        public Rectangle rect;
 
-    public enum GameState {
-        TitleScreen,
-        Playing,
-        End
-    }
+        // Methods
+        public virtual void LoadContent(ContentManager Content) {}
+        public virtual void Update(Game1 game) {}
+        public virtual void Draw(SpriteBatch spriteBatch) {}
 
-    public enum Direction {
-        Up,
-        Down,
-        Left,
-        Right
-    }
-
-    class Globals {
-        GraphicsDevice GraphicsDevice;
     }
 }

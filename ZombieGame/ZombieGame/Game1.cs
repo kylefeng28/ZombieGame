@@ -102,55 +102,37 @@ namespace ZombieGame {
 
             case GameState.Playing: // {
 
+                // End game when health is zero
+                if (amb1.health <= 0) {
+                    state = GameState.End;
+                }
+
                 // Reset acceleration
                 amb1.acceleration = Vector2.Zero;
                 dlk1.acceleration = Vector2.Zero;
 
                 // Move using gamepad
-                if (pad1.ThumbSticks.Left.Y != 0) {
-                    amb1.MoveUp(Math.Sign(pad1.ThumbSticks.Left.Y));
-                }
-
-                if (pad1.ThumbSticks.Left.X != 0) {
-                    amb1.MoveRight(Math.Sign(pad1.ThumbSticks.Left.X));
-                }
+                amb1.MoveWithGamePad(pad1);
 
                 // Move using keyboard
-                if (kb.IsKeyDown(Keys.W)) {
-                    amb1.MoveUp(1);
-                }
+                amb1.MoveWithKeyboard(kb);
 
-                if (kb.IsKeyDown(Keys.S)) {
-                    amb1.MoveDown(1);
-                }
-
-                if (kb.IsKeyDown(Keys.A)) {
-                    amb1.MoveLeft(1);
-                }
-
-                if (kb.IsKeyDown(Keys.D)) {
-                    amb1.MoveRight(1);
-                }
-
+                // Dalek follows ambulance
+                dlk1.Follow(amb1);
+                
                 // TEST
-                // dlk1.Follow(amb1);
-                if (pad1.IsButtonDown(Buttons.A)) {
-                    dlk1.Exterminate();
+                if (pad1.IsButtonDown(Buttons.A) || kb.IsKeyDown(Keys.Space)) {
                     dlk1.Shoot(amb1);
                 }
 
                 // Update sprites
-                amb1.Update(gameTime);
-                dlk1.Update(gameTime);
+                amb1.Update(this);
+                dlk1.Update(this);
 
                 // Prevent sprites from moving off screen
-                amb1.CheckOutOfBounds(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-                dlk1.CheckOutOfBounds(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-
-                // End game when health is zero
-                if (amb1.health <= 0) {
-                    state = GameState.End;
-                }
+                amb1.EnforceBounds(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+                dlk1.EnforceBounds(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+                dlk1.lsr.EnforceBounds(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
 
                 break; // }
 
@@ -161,6 +143,7 @@ namespace ZombieGame {
                 break; // }
             }
             
+            // Store states for the next frame
             pad1_old = pad1;
             kb_old = kb;
 
@@ -175,7 +158,6 @@ namespace ZombieGame {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-
 
             switch (state) {
             case GameState.TitleScreen: // {

@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 namespace ZombieGame {
-    class Dalek : Sprite {
+    class Dalek : CharSprite {
         // Textures
         private static Texture2D dalek_left;
         private static Texture2D dalek_right;
@@ -23,14 +23,18 @@ namespace ZombieGame {
         private static SoundEffect exterminate_snd;
         private static SoundEffect beam_snd;
 
+        // Target
+        private CharSprite target;
+
         // Laser
         public Laser lsr = new Laser();
         private int framesSinceShot = -1; // -1 is ready to shoot
 
         public Dalek() {
             scale = 15;
-            velocity_max = 5;
+            velocity_max = 2;
             health = 100;
+            lsr.velocity = 50;
         }
 
         public override void LoadContent(ContentManager Content) {
@@ -48,7 +52,7 @@ namespace ZombieGame {
             base.LoadContent(Content);
         }
 
-        public override void Update(GameTime gameTime) {
+        public override void Update(Game1 game) {
             // Increment frames since shot
             if (framesSinceShot >= 0) {
                 framesSinceShot++;
@@ -65,10 +69,16 @@ namespace ZombieGame {
                 acceleration.Y = -Math.Sign(velocity.Y);
             }
 
-            // Fire laser
-            lsr.Update(gameTime);
+            // Update laser
+            lsr.Update(game);
 
-            base.Update(gameTime);
+            // Laser collision detection
+            if (lsr.Intersects(target)) {
+                lsr.StopFiring();
+                target.LoseHealth(10);
+            }
+
+            base.Update(game);
         }
 
         public override void Draw(SpriteBatch spriteBatch) {
@@ -105,16 +115,18 @@ namespace ZombieGame {
             }
         }
 
-        public override void Follow(Sprite s) {
+        public override void Follow(CharSprite s) {
+            target = s;
+
             Vector2 diff = s.position - position;
             Vector2 dir = diff;
             dir.Normalize();
 
-            if (diff.Length() <= 100) {
+            if (diff.Length() <= 150) {
                 Exterminate();
             }
 
-            if (diff.Length() <= 50) {
+            if (diff.Length() <= 200) {
                 Shoot(s);
             }
 
@@ -128,15 +140,15 @@ namespace ZombieGame {
             }
         }
 
-        public void Shoot(Sprite s) {
+        public void Shoot(CharSprite s) {
             Vector2 dir =  s.position - position;
             dir.Normalize();
 
             if (framesSinceShot == -1) {
                 beam_snd.Play();
-                s.LoseHealth(10);
-                lsr.position = Vector2.Zero;
-                lsr.direction = new Vector2(1,0);
+                lsr.start = position;
+                lsr.direction = dir;
+                
                 lsr.Fire();
                 framesSinceShot = 0;
             }

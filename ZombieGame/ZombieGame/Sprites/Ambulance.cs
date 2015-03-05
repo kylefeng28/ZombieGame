@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 namespace ZombieGame {
-    class Ambulance : Sprite {
+    class Ambulance : CharSprite {
         // Textures
         private static Texture2D ambulance_side_left;
         private static Texture2D ambulance_side_right;
@@ -49,14 +49,14 @@ namespace ZombieGame {
             base.LoadContent(Content);
         }
 
-        public override void Update(GameTime gameTime) {
+        public override void Update(Game1 game) {
             // Slow down
             if (acceleration.Equals(Vector2.Zero)) {
                 acceleration.X = -Math.Sign(velocity.X);
                 acceleration.Y = -Math.Sign(velocity.Y);
             }
 
-            base.Update(gameTime);
+            base.Update(game);
         }
 
         public override void Draw(SpriteBatch spriteBatch) {

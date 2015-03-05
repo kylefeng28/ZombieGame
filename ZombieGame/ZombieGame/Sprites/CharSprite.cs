@@ -11,15 +11,13 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 namespace ZombieGame {
-    class Sprite {
+    class CharSprite : BaseSprite {
         // Textures
-        protected Texture2D texture; // Sprite texture to draw
         protected Texture2D healthbar;
         protected int scale = 1; // Amount to scale the texture
         protected Color color = Color.White;
 
         // Rectangles
-        public Rectangle rect;
         protected Rectangle hbar_rect;
 
         // Position, velocity, acceleration
@@ -35,11 +33,11 @@ namespace ZombieGame {
         public int health;
         protected int framesSinceHit = -1; // -1 is not hit
 
-        public virtual void LoadContent(ContentManager Content) {
+        public override void LoadContent(ContentManager Content) {
             healthbar = Content.Load<Texture2D>("pixel");
         }
 
-        public virtual void Update(GameTime t) {
+        public override void Update(Game1 game) {
             // Increment frames since hit, and change color to red
             if (framesSinceHit >= 0) {
                 framesSinceHit++;
@@ -57,7 +55,7 @@ namespace ZombieGame {
             velocity += acceleration;
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch) {
+        public override void Draw(SpriteBatch spriteBatch) {
             int width = texture.Width / scale;
             int height = texture.Height / scale;
             int x = (int) position.X - width / 2;
@@ -81,7 +79,7 @@ namespace ZombieGame {
 
         }
 
-        public void CheckOutOfBounds(int width, int height) {
+        public void EnforceBounds(int width, int height) {
             if (position.X < 0) {
                 position.X = 0;
             }
@@ -118,7 +116,35 @@ namespace ZombieGame {
         public void MoveRight(float n = 1) { Move(new Vector2(n, 0)); }
         public void MoveLeft(float n = 1) { MoveRight(-n); }
 
-        public virtual void Follow(Sprite s) {
+        public void MoveWithGamePad(GamePadState pad) {
+            if (pad.ThumbSticks.Left.Y != 0) {
+                MoveUp(Math.Sign(pad.ThumbSticks.Left.Y));
+            }
+
+            if (pad.ThumbSticks.Left.X != 0) {
+                MoveRight(Math.Sign(pad.ThumbSticks.Left.X));
+            }
+        }
+
+        public void MoveWithKeyboard(KeyboardState kb) {
+            if (kb.IsKeyDown(Keys.W)) {
+                MoveUp(1);
+            }
+
+            if (kb.IsKeyDown(Keys.S)) {
+                MoveDown(1);
+            }
+
+            if (kb.IsKeyDown(Keys.A)) {
+                MoveLeft(1);
+            }
+
+            if (kb.IsKeyDown(Keys.D)) {
+                MoveRight(1);
+            }
+        }
+
+        public virtual void Follow(CharSprite s) {
             Vector2 diff = s.position - position;
 
             Move(diff);
@@ -127,6 +153,10 @@ namespace ZombieGame {
         public void LoseHealth(int damageAmount) {
             health -= damageAmount;
             framesSinceHit = 0;
+        }
+
+        public bool Intersects(CharSprite s) {
+            return this.rect.Intersects(s.rect);
         }
 
     }

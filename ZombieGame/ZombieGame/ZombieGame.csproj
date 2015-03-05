@@ -113,9 +113,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="Sprites\BaseSprite.cs" />
     <Compile Include="Sprites\Laser.cs" />
     <Compile Include="Sprites\Dalek.cs" />
-    <Compile Include="Sprites\Sprite.cs" />
+    <Compile Include="Sprites\CharSprite.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
